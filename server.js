@@ -31,7 +31,7 @@ server.get('/accounts/:id', validateId, (req, res) => {
         })
 });
 
-server.post('/accounts', validatePost, (req, res) => {
+server.post('/accounts', validatePost, validateUniqueName, (req, res) => {
     db('accounts').insert(req.body, 'id')
         .then(([results]) => {
             res.status(200).json({message: `record of id ${results} added`});
@@ -73,6 +73,20 @@ function validateId(req, res, next) {
         })
         .catch(error => {
             console.log(error);
+        })
+}
+
+function validateUniqueName(req, res, next) {
+    db('accounts').where('name', 'like', req.body.name)
+        .then(results => {
+            if (results.length === 0) {
+                next();
+            } else {
+                res.status(400).json({message: `account name ${req.body.name} has already been taken`})
+            }
+        })
+        .catch(error => {
+            console.log(error)
         })
 }
 
