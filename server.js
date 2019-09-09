@@ -20,4 +20,27 @@ server.get('/accounts', (req, res) => {
         })
 }); 
 
+server.post('/accounts', validatePost, (req, res) => {
+    db('accounts').insert(req.body, 'id')
+        .then(([results]) => {
+            res.status(200).json({message: `record of id ${results} added`});
+        })
+        .catch(error => {
+            res.status(500).json(error);
+        })
+})
+
+// middleware:
+function validatePost(req, res, next) {
+    if(!Object.keys(req.body).length) {
+        res.status(400).json({message: 'missing post data'})
+    } else {
+        if (req.body.name && req.body.budget) {
+            next();
+        } else {
+            res.status(400).json({message: 'missing name or budget fields'})
+        }
+    }
+}
+
 module.exports = server;
