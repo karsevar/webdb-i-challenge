@@ -41,6 +41,16 @@ server.post('/accounts', validatePost, (req, res) => {
         })
 });
 
+server.delete('/accounts/:id', validateId, (req, res) => {
+    db('accounts').where({id: req.params.id}).del()
+        .then(count => {
+            res.status(200).json({message: `deleted ${count} records`});
+        })
+        .catch(error => {
+            res.json(error);
+        })
+});
+
 // middleware:
 function validateId(req, res, next) {
     db('accounts').where({id: req.params.id}) 
